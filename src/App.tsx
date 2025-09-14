@@ -134,7 +134,7 @@ function App() {
         <h1>Life Helper</h1>
         <div className="hp-display">
           <div className="current-hp">
-            <span className="hp-label">Current HP:</span>
+            <span className="hp-label">HP:</span>
             <span
               className={`hp-value ${
                 appState.hp < 0 ? "negative" : "positive"
@@ -145,7 +145,7 @@ function App() {
           </div>
           {todayHpChange !== 0 && (
             <div className="today-change">
-              <span className="hp-label">Today's Change:</span>
+              <span className="hp-label">Today:</span>
               <span
                 className={`hp-change ${
                   todayHpChange > 0 ? "positive" : "negative"

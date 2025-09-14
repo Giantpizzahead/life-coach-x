@@ -6,6 +6,49 @@
     sans-serif;
 }
 
+@media (max-width: 600px) {
+  .app {
+    padding: 1rem;
+  }
+
+  .todo-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .completion-capsules {
+    width: 100%;
+    max-width: 200px;
+  }
+
+  .not-required-indicator {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+
+  .todo-name {
+    font-size: 1rem;
+  }
+
+  .hp-adjustment {
+    margin: 1rem 0;
+    padding: 0.75rem;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .hp-adjustment input {
+    font-size: 0.9rem;
+    padding: 0.4rem;
+  }
+
+  .hp-adjustment button {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.8rem;
+  }
+}
+
 .loading {
   text-align: center;
   padding: 2rem;
@@ -346,19 +389,19 @@
 }
 
 .reset-button {
-  background-color: #f59e0b;
+  background-color: #d97706;
   color: white;
 }
 
 .reset-button:hover {
-  background-color: #d97706;
+  background-color: #b45309;
 }
 
 .clear-button {
-  background-color: #ef4444;
+  background-color: #dc2626;
   color: white;
 }
 
 .clear-button:hover {
-  background-color: #dc2626;
+  background-color: #b91c1c;
 }
