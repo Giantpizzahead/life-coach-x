@@ -1,0 +1,293 @@
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+    sans-serif;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.2rem;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.app-header h1 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 2rem;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.hp-display {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.current-hp {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.today-change {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+}
+
+.hp-label {
+  color: #ffffff;
+}
+
+.hp-value {
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.hp-value.positive {
+  color: #10b981;
+  text-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+}
+
+.hp-value.negative {
+  color: #ef4444;
+  text-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+}
+
+.hp-change {
+  font-size: 0.9rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+
+.hp-change.positive {
+  background-color: #dcfce7;
+  color: #059669;
+  font-weight: 600;
+}
+
+.hp-change.negative {
+  background-color: #fef2f2;
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.hp-adjustment {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background-color: #fafafa;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.hp-adjustment input {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  font-size: 1rem;
+  background-color: #ffffff;
+  color: #111827;
+}
+
+.hp-adjustment button {
+  padding: 0.5rem 1rem;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.hp-adjustment button:hover {
+  background-color: #1d4ed8;
+}
+
+.sections {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.section {
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.section-title {
+  margin: 0 0 1rem 0;
+  color: #374151;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.todos {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.todo-item {
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 1rem;
+  background-color: #fafafa;
+}
+
+.todo-item.not-required {
+  opacity: 0.6;
+  background-color: #f9fafb;
+}
+
+.todo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  gap: 1rem;
+}
+
+.todo-name {
+  margin: 0;
+  color: #111827;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.completion-capsules {
+  display: flex;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  width: 300px;
+}
+
+.tier-capsule {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  height: 28px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 1rem;
+  font-weight: 600;
+  position: relative;
+}
+
+.tier-capsule:not(:last-child) {
+  border-right: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.tier-capsule.none {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+.tier-capsule.none:hover {
+  background-color: #e5e7eb;
+}
+
+.tier-capsule.none.selected {
+  background-color: #6b7280;
+  color: white;
+  transform: scale(1.05);
+  z-index: 1;
+}
+
+.tier-capsule.minimum {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.tier-capsule.minimum:hover {
+  background-color: #fde68a;
+}
+
+.tier-capsule.minimum.selected {
+  background-color: #f59e0b;
+  color: white;
+  transform: scale(1.05);
+  z-index: 1;
+}
+
+.tier-capsule.full {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.tier-capsule.full:hover {
+  background-color: #bbf7d0;
+}
+
+.tier-capsule.full.selected {
+  background-color: #22c55e;
+  color: white;
+  transform: scale(1.05);
+  z-index: 1;
+}
+
+.tier-capsule.bonus {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.tier-capsule.bonus:hover {
+  background-color: #bfdbfe;
+}
+
+.tier-capsule.bonus.selected {
+  background-color: #3b82f6;
+  color: white;
+  transform: scale(1.05);
+  z-index: 1;
+}
+
+.tier-symbol {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.todo-description {
+  margin: 0.5rem 0 0 0;
+  color: #6b7280;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.not-required-indicator {
+  margin-top: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  background-color: #fef3c7;
+  color: #92400e;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  display: inline-block;
+}

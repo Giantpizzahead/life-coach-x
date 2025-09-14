@@ -1,2 +1,5 @@
-# life-coach-x
-A futuristic life coach for students and self-improvers. Earn points for completing routines, track progress, and evolve with new features as it’s continually built.
+# Life Helper
+
+A habit tracking app that gamifies daily routines with HP (Habit Points) rewards and a clean, minimal interface.
+
+For personal use. AI helped a ton :D

@@ -1,0 +1,88 @@
+{
+  "sections": [
+    { "name": "Morning", "order": 1 },
+    { "name": "Afternoon", "order": 2 },
+    { "name": "Evening", "order": 3 },
+    { "name": "Weekly", "order": 4 },
+    { "name": "Other", "order": 5 }
+  ],
+  "tasks": [
+    {
+      "id": "morning-exercise",
+      "name": "Morning Exercise",
+      "description": "30 minutes of cardio or strength training",
+      "section": "Morning",
+      "hpValues": {
+        "none": -1000,
+        "minimum": 500,
+        "full": 1500,
+        "bonus": 2500
+      },
+      "recurrence": {
+        "type": "daily"
+      }
+    },
+    {
+      "id": "meditation",
+      "name": "Meditation",
+      "description": "10 minutes of mindfulness practice",
+      "section": "Morning",
+      "hpValues": {
+        "none": -500,
+        "minimum": null,
+        "full": 800,
+        "bonus": null
+      },
+      "recurrence": {
+        "type": "daily"
+      }
+    },
+    {
+      "id": "workout",
+      "name": "Gym Workout",
+      "description": "Full gym session with weights",
+      "section": "Afternoon",
+      "hpValues": {
+        "none": -1500,
+        "minimum": 1000,
+        "full": 2000,
+        "bonus": 3500
+      },
+      "recurrence": {
+        "type": "weekly",
+        "dayOfWeek": 1
+      }
+    },
+    {
+      "id": "weekly-review",
+      "name": "Weekly Review",
+      "description": "Plan and review goals for the week",
+      "section": "Weekly",
+      "hpValues": {
+        "none": -2000,
+        "minimum": null,
+        "full": 3000,
+        "bonus": null
+      },
+      "recurrence": {
+        "type": "weekly",
+        "dayOfWeek": 0
+      }
+    },
+    {
+      "id": "evening-reading",
+      "name": "Evening Reading",
+      "description": "Read for at least 30 minutes",
+      "section": "Evening",
+      "hpValues": {
+        "none": -800,
+        "minimum": 500,
+        "full": 1200,
+        "bonus": 1800
+      },
+      "recurrence": {
+        "type": "daily"
+      }
+    }
+  ]
+}
