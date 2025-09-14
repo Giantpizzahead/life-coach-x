@@ -10,6 +10,11 @@ import {
   shouldResetTasks,
   resetDailyTodos,
 } from "./utils/todoUtils";
+import {
+  loadAppStateFromFirestore,
+  saveAppStateToFirestore,
+  subscribeToAppState,
+} from "./firebase/firestoreService";
 import tasksConfig from "./config/tasks.json";
 import "./App.css";
 
@@ -17,52 +22,87 @@ function App() {
   const [appState, setAppState] = useState<AppState | null>(null);
   const [hpAdjustment, setHpAdjustment] = useState("");
 
-  // Initialize app state
+  // Initialize app state with Firestore
   useEffect(() => {
-    const saved = loadAppState();
-    if (saved) {
-      // Check if tasks need to be reset
-      if (shouldResetTasks(saved.lastResetDate)) {
-        const resetTodos = resetDailyTodos(saved.todos);
-        const newState = {
-          ...saved,
-          todos: resetTodos,
-          lastResetDate: new Date(),
-        };
-        setAppState(newState);
-        saveAppState(newState);
-      } else {
-        setAppState(saved);
+    let unsubscribe: (() => void) | undefined;
+
+    const initializeApp = async () => {
+      try {
+        // Try to load from Firestore first
+        const saved = await loadAppStateFromFirestore();
+
+        if (saved) {
+          // Check if tasks need to be reset
+          if (shouldResetTasks(saved.lastResetDate)) {
+            const resetTodos = resetDailyTodos(saved.todos);
+            const newState = {
+              ...saved,
+              todos: resetTodos,
+              lastResetDate: new Date(),
+            };
+            setAppState(newState);
+            await saveAppStateToFirestore(newState);
+          } else {
+            setAppState(saved);
+          }
+        } else {
+          // Initialize with config data
+          const today = new Date();
+          const initialTodos: TodoItem[] = tasksConfig.tasks.map((task) => ({
+            ...task,
+            completionTier: CompletionTier.NONE,
+            history: [],
+            recurrence: {
+              type: task.recurrence.type as "daily" | "weekly",
+              dayOfWeek: task.recurrence.dayOfWeek,
+            },
+          }));
+
+          const initialState: AppState = {
+            hp: 1000, // Starting HP ($10.00)
+            todos: initialTodos,
+            sections: tasksConfig.sections,
+            lastResetDate: today,
+          };
+
+          setAppState(initialState);
+          await saveAppStateToFirestore(initialState);
+        }
+
+        // Set up real-time listener
+        unsubscribe = subscribeToAppState((state) => {
+          if (state) {
+            setAppState(state);
+          }
+        });
+      } catch (error) {
+        console.error("Error initializing app:", error);
+        // Fallback to localStorage if Firestore fails
+        const saved = loadAppState();
+        if (saved) {
+          setAppState(saved);
+        }
       }
-    } else {
-      // Initialize with config data
-      const today = new Date();
-      const initialTodos: TodoItem[] = tasksConfig.tasks.map((task) => ({
-        ...task,
-        completionTier: CompletionTier.NONE,
-        history: [],
-        recurrence: {
-          type: task.recurrence.type as "daily" | "weekly",
-          dayOfWeek: task.recurrence.dayOfWeek,
-        },
-      }));
+    };
 
-      const initialState: AppState = {
-        hp: 1000, // Starting HP ($10.00)
-        todos: initialTodos,
-        sections: tasksConfig.sections,
-        lastResetDate: today,
-      };
+    initializeApp();
 
-      setAppState(initialState);
-      saveAppState(initialState);
-    }
+    // Cleanup listener on unmount
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, []);
 
-  // Save state whenever it changes
+  // Save state to Firestore whenever it changes
   useEffect(() => {
     if (appState) {
-      saveAppState(appState);
+      saveAppStateToFirestore(appState).catch((error) => {
+        console.error("Error saving to Firestore:", error);
+        // Fallback to localStorage
+        saveAppState(appState);
+      });
     }
   }, [appState]);
 
