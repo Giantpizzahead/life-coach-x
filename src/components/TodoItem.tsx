@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import type { TodoItem as TodoItemType } from "../types/TodoItem";
 import { CompletionTier } from "../types/TodoItem";
 import { isTaskRequiredToday } from "../utils/todoUtils";
@@ -9,6 +9,7 @@ interface TodoItemProps {
 }
 
 const TodoItem: React.FC<TodoItemProps> = ({ todo, onCompletionChange }) => {
+  const [showDescription, setShowDescription] = useState(false);
   const isRequired = isTaskRequiredToday(todo);
 
   const handleTierChange = (tier: CompletionTier) => {
@@ -59,8 +60,12 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo, onCompletionChange }) => {
   return (
     <div className={`todo-item ${!isRequired ? "not-required" : ""}`}>
       <div className="todo-header">
-        <h3 className="todo-name">{todo.name}</h3>
-        {isRequired && (
+        <h3
+          className="todo-name clickable"
+          onClick={() => setShowDescription(!showDescription)}>
+          {todo.name}
+        </h3>
+        {isRequired ? (
           <div className="completion-capsules">
             {tiers.map((tier) => (
               <button
@@ -73,26 +78,28 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo, onCompletionChange }) => {
                   getHpValue(tier) > 0 ? "+" : ""
                 }${getHpValue(tier)} HP`}>
                 <span className="tier-symbol">
-                  {tier === CompletionTier.NONE
-                    ? "○"
-                    : tier === CompletionTier.MINIMUM
-                    ? "−"
-                    : tier === CompletionTier.FULL
-                    ? "✓"
-                    : "+"}
+                  {tier === CompletionTier.NONE ? (
+                    ""
+                  ) : tier === CompletionTier.MINIMUM ? (
+                    <i className="fas fa-minus"></i>
+                  ) : tier === CompletionTier.FULL ? (
+                    <i className="fas fa-check"></i>
+                  ) : (
+                    <i
+                      className="fas fa-star"
+                      style={{ fontSize: "0.75em" }}></i>
+                  )}
                 </span>
               </button>
             ))}
           </div>
+        ) : (
+          <div className="not-required-indicator">Not required today</div>
         )}
       </div>
 
-      {todo.description && (
+      {todo.description && showDescription && (
         <p className="todo-description">{todo.description}</p>
-      )}
-
-      {!isRequired && (
-        <div className="not-required-indicator">Not required today</div>
       )}
     </div>
   );

@@ -10,7 +10,7 @@
     {
       "id": "morning-exercise",
       "name": "Morning Exercise",
-      "description": "30 minutes of cardio or strength training",
+      "description": "30 minutes of cardio or strength training. This includes activities like running, cycling, swimming, weightlifting, yoga, or any other physical activity that gets your heart rate up and helps build strength. The goal is to start your day with energy and set a positive tone for the rest of your activities. You can break this into smaller sessions throughout the morning if needed, but aim for at least 30 minutes total.",
       "section": "Morning",
       "hpValues": {
         "none": -1000,

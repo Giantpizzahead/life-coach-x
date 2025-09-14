@@ -48,7 +48,7 @@ function App() {
       }));
 
       const initialState: AppState = {
-        hp: 10000, // Starting HP ($100.00)
+        hp: 1000, // Starting HP ($10.00)
         todos: initialTodos,
         sections: tasksConfig.sections,
         lastResetDate: today,
@@ -89,6 +89,32 @@ function App() {
       });
       setHpAdjustment("");
     }
+  };
+
+  const handleEndOfDayReset = () => {
+    if (!appState) return;
+
+    // Calculate HP change for today
+    const hpChange = calculateDailyHpChange(appState.todos);
+
+    // Reset all tasks to NONE
+    const resetTodos = resetDailyTodos(appState.todos);
+
+    // Update HP and reset date
+    const newState = {
+      ...appState,
+      hp: appState.hp + hpChange,
+      todos: resetTodos,
+      lastResetDate: new Date(),
+    };
+
+    setAppState(newState);
+    saveAppState(newState);
+  };
+
+  const handleClearStorage = () => {
+    localStorage.removeItem("life-coach-app-state");
+    window.location.reload();
   };
 
   const getTodosBySection = (sectionName: string) => {
@@ -132,16 +158,6 @@ function App() {
         </div>
       </header>
 
-      <div className="hp-adjustment">
-        <input
-          type="number"
-          value={hpAdjustment}
-          onChange={(e) => setHpAdjustment(e.target.value)}
-          placeholder="HP adjustment"
-        />
-        <button onClick={handleHpAdjustment}>Adjust HP</button>
-      </div>
-
       <div className="sections">
         {appState.sections
           .sort((a, b) => a.order - b.order)
@@ -164,6 +180,33 @@ function App() {
               </div>
             );
           })}
+      </div>
+
+      <div className="hp-adjustment">
+        <input
+          type="number"
+          value={hpAdjustment}
+          onChange={(e) => setHpAdjustment(e.target.value)}
+          placeholder="HP adjustment"
+        />
+        <button onClick={handleHpAdjustment}>Adjust HP</button>
+      </div>
+
+      {/* Debug Buttons */}
+      <div className="debug-section">
+        <h3>Debug Tools</h3>
+        <div className="debug-buttons">
+          <button
+            className="debug-button reset-button"
+            onClick={handleEndOfDayReset}>
+            End of Day Reset
+          </button>
+          <button
+            className="debug-button clear-button"
+            onClick={handleClearStorage}>
+            Clear Storage & Reload
+          </button>
+        </div>
       </div>
     </div>
   );
