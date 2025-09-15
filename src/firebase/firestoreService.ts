@@ -3,7 +3,19 @@ import { db } from "./config";
 import type { AppState } from "../types/TodoItem";
 
 const COLLECTION_NAME = "users";
-const DOCUMENT_ID = "default-user"; // For now, using a single user
+
+// Extend Window interface to include userId
+declare global {
+  interface Window {
+    userId?: string;
+  }
+}
+
+// Get user document ID (use actual user ID or fallback)
+const getUserDocumentId = (): string => {
+  // This will be set by the auth service
+  return window.userId || "default-user";
+};
 
 // Convert Firestore data to AppState
 const convertFirestoreToAppState = (data: any): AppState => {
@@ -34,7 +46,7 @@ const convertAppStateToFirestore = (state: AppState) => {
 // Load app state from Firestore
 export const loadAppStateFromFirestore = async (): Promise<AppState | null> => {
   try {
-    const docRef = doc(db, COLLECTION_NAME, DOCUMENT_ID);
+    const docRef = doc(db, COLLECTION_NAME, getUserDocumentId());
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
@@ -52,7 +64,7 @@ export const saveAppStateToFirestore = async (
   state: AppState
 ): Promise<void> => {
   try {
-    const docRef = doc(db, COLLECTION_NAME, DOCUMENT_ID);
+    const docRef = doc(db, COLLECTION_NAME, getUserDocumentId());
     const firestoreData = convertAppStateToFirestore(state);
     await setDoc(docRef, firestoreData);
   } catch (error) {
@@ -65,7 +77,7 @@ export const saveAppStateToFirestore = async (
 export const subscribeToAppState = (
   onStateChange: (state: AppState | null) => void
 ) => {
-  const docRef = doc(db, COLLECTION_NAME, DOCUMENT_ID);
+  const docRef = doc(db, COLLECTION_NAME, getUserDocumentId());
 
   return onSnapshot(docRef, (doc) => {
     if (doc.exists()) {
