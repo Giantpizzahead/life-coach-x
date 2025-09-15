@@ -2,39 +2,27 @@ import { useState, useEffect } from "react";
 import type { AppState, TodoItem } from "./types/TodoItem";
 import { CompletionTier } from "./types/TodoItem";
 import TodoItemComponent from "./components/TodoItem";
+import StatusIndicator from "./components/StatusIndicator";
 import {
-  loadAppState,
-  saveAppState,
   updateTodoCompletion,
   calculateDailyHpChange,
   shouldResetTasks,
   resetDailyTodos,
 } from "./utils/todoUtils";
+import { useDataSync } from "./hooks/useDataSync";
+import { useAuth } from "./contexts/AuthContext";
 import tasksConfig from "./config/tasks.json";
 import "./App.css";
 
 function App() {
-  const [appState, setAppState] = useState<AppState | null>(null);
+  const { user } = useAuth();
+  const { appState, saveMethod, isLoading, error, updateAppState } =
+    useDataSync(user);
   const [hpAdjustment, setHpAdjustment] = useState("");
 
-  // Initialize app state from localStorage
+  // Initialize app state if none exists
   useEffect(() => {
-    const saved = loadAppState();
-    if (saved) {
-      // Check if tasks need to be reset
-      if (shouldResetTasks(saved.lastResetDate)) {
-        const resetTodos = resetDailyTodos(saved.todos);
-        const newState = {
-          ...saved,
-          todos: resetTodos,
-          lastResetDate: new Date(),
-        };
-        setAppState(newState);
-        saveAppState(newState);
-      } else {
-        setAppState(saved);
-      }
-    } else {
+    if (!appState && !isLoading) {
       // Initialize with config data
       const today = new Date();
       const initialTodos: TodoItem[] = tasksConfig.tasks.map((task) => ({
@@ -54,24 +42,29 @@ function App() {
         lastResetDate: today,
       };
 
-      setAppState(initialState);
-      saveAppState(initialState);
+      updateAppState(initialState);
     }
-  }, []);
+  }, [appState, isLoading, updateAppState]);
 
-  // Save state to localStorage whenever it changes
+  // Check if tasks need to be reset
   useEffect(() => {
-    if (appState) {
-      saveAppState(appState);
+    if (appState && shouldResetTasks(appState.lastResetDate)) {
+      const resetTodos = resetDailyTodos(appState.todos);
+      const newState = {
+        ...appState,
+        todos: resetTodos,
+        lastResetDate: new Date(),
+      };
+      updateAppState(newState);
     }
-  }, [appState]);
+  }, [appState, updateAppState]);
 
   const handleTodoCompletion = (id: string, tier: CompletionTier) => {
     if (!appState) return;
 
     const updatedTodos = updateTodoCompletion(appState.todos, id, tier);
 
-    setAppState({
+    updateAppState({
       ...appState,
       todos: updatedTodos,
       // HP only updates at end of day, not immediately
@@ -83,7 +76,7 @@ function App() {
 
     const adjustment = parseInt(hpAdjustment);
     if (!isNaN(adjustment)) {
-      setAppState({
+      updateAppState({
         ...appState,
         hp: appState.hp + adjustment,
       });
@@ -108,7 +101,7 @@ function App() {
       lastResetDate: new Date(),
     };
 
-    setAppState(newState);
+    updateAppState(newState);
   };
 
   const handleClearStorage = () => {
@@ -121,7 +114,7 @@ function App() {
     return appState.todos.filter((todo) => todo.section === sectionName);
   };
 
-  if (!appState) {
+  if (isLoading || !appState) {
     return <div className="loading">Loading...</div>;
   }
 
@@ -129,6 +122,11 @@ function App() {
 
   return (
     <div className="app">
+      <StatusIndicator
+        saveMethod={saveMethod}
+        isLoading={isLoading}
+        error={error}
+      />
       <header className="app-header">
         <h1>Life Helper</h1>
         <div className="hp-display">
