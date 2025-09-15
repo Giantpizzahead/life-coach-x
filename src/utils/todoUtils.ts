@@ -65,8 +65,9 @@ export const calculateDailyHpChange = (todos: TodoItem[]): number => {
 export const shouldResetTasks = (lastResetDate: Date): boolean => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  lastResetDate.setHours(0, 0, 0, 0);
-  return lastResetDate.getTime() !== today.getTime();
+  const lastReset = new Date(lastResetDate);
+  lastReset.setHours(0, 0, 0, 0);
+  return lastReset.getTime() !== today.getTime();
 };
 
 export const resetDailyTodos = (todos: TodoItem[]): TodoItem[] => {
@@ -107,12 +108,12 @@ export const saveAppState = (state: AppState): void => {
     // Convert Date objects to strings for JSON serialization
     const serializable = {
       ...state,
-      lastResetDate: state.lastResetDate.toISOString(),
+      lastResetDate: new Date(state.lastResetDate).toISOString(),
       todos: state.todos.map((todo) => ({
         ...todo,
         history: todo.history.map((entry) => ({
           ...entry,
-          date: entry.date.toISOString(),
+          date: new Date(entry.date).toISOString(),
         })),
       })),
     };

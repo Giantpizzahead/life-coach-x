@@ -337,6 +337,12 @@
   justify-content: center;
   font-size: 1.2rem;
   line-height: 1;
+  width: 100%;
+  height: 100%;
+}
+
+.tier-symbol .fa-star {
+  transform: translateX(-1px);
 }
 
 .todo-description {
@@ -359,13 +365,21 @@
 
 .auth-section {
   display: flex;
+  flex-direction: row;
   align-items: center;
+  justify-content: space-between;
   gap: 1rem;
   margin-bottom: 2rem;
   padding: 1rem;
   background-color: #f9fafb;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
+}
+
+.auth-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .user-info {
@@ -417,6 +431,40 @@
 
 .sign-out:hover:not(:disabled) {
   background-color: #dc2626;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 0;
+}
+
+.status-indicator.offline {
+  background-color: #fef3c7;
+  color: #92400e;
+  border: 1px solid #f59e0b;
+}
+
+.status-indicator.online {
+  background-color: #d1fae5;
+  color: #065f46;
+  border: 1px solid #10b981;
+}
+
+.status-indicator.local {
+  background-color: #e5e7eb;
+  color: #374151;
+  border: 1px solid #9ca3af;
+}
+
+.status-icon {
+  font-size: 1rem;
 }
 
 .debug-section {

@@ -18,12 +18,23 @@ const getUserDocumentId = (): string => {
 };
 
 // Convert Firestore data to AppState
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const convertFirestoreToAppState = (data: any): AppState => {
   return {
     hp: data.hp || 1000,
-    todos: data.todos || [],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    todos: (data.todos || []).map((todo: any) => ({
+      ...todo,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      history: (todo.history || []).map((entry: any) => ({
+        ...entry,
+        date: entry.date?.toDate ? entry.date.toDate() : new Date(entry.date),
+      })),
+    })),
     sections: data.sections || [],
-    lastResetDate: data.lastResetDate?.toDate() || new Date(),
+    lastResetDate: data.lastResetDate?.toDate
+      ? data.lastResetDate.toDate()
+      : new Date(data.lastResetDate),
   };
 };
 
@@ -35,11 +46,11 @@ const convertAppStateToFirestore = (state: AppState) => {
       ...todo,
       history: todo.history.map((entry) => ({
         ...entry,
-        date: Timestamp.fromDate(entry.date),
+        date: Timestamp.fromDate(new Date(entry.date)),
       })),
     })),
     sections: state.sections,
-    lastResetDate: Timestamp.fromDate(state.lastResetDate),
+    lastResetDate: Timestamp.fromDate(new Date(state.lastResetDate)),
   };
 };
 
@@ -55,6 +66,20 @@ export const loadAppStateFromFirestore = async (): Promise<AppState | null> => {
     return null;
   } catch (error) {
     console.error("Error loading from Firestore:", error);
+
+    // Check if it's an authentication/API key error
+    if (
+      error instanceof Error &&
+      (error.message.includes("API key") ||
+        error.message.includes("permission") ||
+        error.message.includes("unauthorized") ||
+        error.message.includes("invalid"))
+    ) {
+      console.warn(
+        "Firebase API key appears to be invalid, falling back to localStorage"
+      );
+    }
+
     return null;
   }
 };
@@ -64,11 +89,30 @@ export const saveAppStateToFirestore = async (
   state: AppState
 ): Promise<void> => {
   try {
-    const docRef = doc(db, COLLECTION_NAME, getUserDocumentId());
+    const userId = getUserDocumentId();
+    const docRef = doc(db, COLLECTION_NAME, userId);
     const firestoreData = convertAppStateToFirestore(state);
     await setDoc(docRef, firestoreData);
+    console.log("✅ Saved to Firestore");
+
+    // Clear localStorage since we're now using Firestore
+    localStorage.removeItem("life-coach-app-state");
   } catch (error) {
-    console.error("Error saving to Firestore:", error);
+    console.error("❌ Error saving to Firestore:", error);
+
+    // Check if it's an authentication/API key error
+    if (
+      error instanceof Error &&
+      (error.message.includes("API key") ||
+        error.message.includes("permission") ||
+        error.message.includes("unauthorized") ||
+        error.message.includes("invalid"))
+    ) {
+      console.warn(
+        "Firebase API key appears to be invalid, data will be saved locally only"
+      );
+    }
+
     throw error;
   }
 };
