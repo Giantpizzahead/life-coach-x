@@ -18,9 +18,16 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 20 }
       - run: npm ci
+
+      - name: Create env file
+        run: |
+          cat > .env << 'EOF'
+          VITE_FIREBASE_API_KEY=${{ secrets.VITE_FIREBASE_API_KEY }}
+          EOF
+
+      # Sanity check (doesn't print secret values)
+      - run: node -e "console.log('env loaded?', !!process.env.VITE_FIREBASE_API_KEY)"
       - run: npm run build
-        env:
-          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
       - uses: actions/upload-pages-artifact@v3
         with: { path: ./dist }
   deploy:
