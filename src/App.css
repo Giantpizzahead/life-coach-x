@@ -257,6 +257,10 @@
   border-right: 1px solid rgba(255, 255, 255, 0.3);
 }
 
+.tier-capsule:not(:first-child) {
+  border-left: 1px solid rgba(255, 255, 255, 0.3);
+}
+
 .tier-capsule:first-child {
   border-top-left-radius: 12px;
   border-bottom-left-radius: 12px;
