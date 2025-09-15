@@ -96,6 +96,7 @@ export const loadAppState = (): AppState | null => {
       })),
     }));
 
+    console.error("Loaded app state");
     return parsed;
   } catch (error) {
     console.error("Failed to load app state:", error);
@@ -119,6 +120,7 @@ export const saveAppState = (state: AppState): void => {
     };
 
     localStorage.setItem("life-coach-app-state", JSON.stringify(serializable));
+    console.error("Saved app state");
   } catch (error) {
     console.error("Failed to save app state:", error);
   }

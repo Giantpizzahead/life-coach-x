@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import type { AppState, TodoItem } from "./types/TodoItem";
 import { CompletionTier } from "./types/TodoItem";
 import TodoItemComponent from "./components/TodoItem";
@@ -10,185 +10,64 @@ import {
   shouldResetTasks,
   resetDailyTodos,
 } from "./utils/todoUtils";
-import {
-  loadAppStateFromFirestore,
-  saveAppStateToFirestore,
-  subscribeToAppState,
-} from "./firebase/firestoreService";
-import { onAuthStateChange } from "./firebase/authService";
-import AuthButton from "./components/AuthButton";
 import tasksConfig from "./config/tasks.json";
 import "./App.css";
 
 function App() {
   const [appState, setAppState] = useState<AppState | null>(null);
   const [hpAdjustment, setHpAdjustment] = useState("");
-  const [user, setUser] = useState<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
-  const [isLoading, setIsLoading] = useState(true);
-  const lastUpdateTimeRef = useRef<number>(0);
 
-  // Initialize authentication and app state
+  // Initialize app state from localStorage
   useEffect(() => {
-    let unsubscribeAuth: (() => void) | undefined;
-    let unsubscribeFirestore: (() => void) | undefined;
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const initializeApp = async (user: any) => {
-      try {
-        if (user) {
-          // Set global userId for Firestore service
-          (window as any).userId = user.uid; // eslint-disable-line @typescript-eslint/no-explicit-any
-
-          // Try to load from Firestore first
-          const saved = await loadAppStateFromFirestore();
-
-          if (saved) {
-            console.log("📱 Loaded data from Firestore");
-            // Clear localStorage since we're now using Firestore
-            localStorage.removeItem("life-coach-app-state");
-
-            // Check if tasks need to be reset
-            if (shouldResetTasks(saved.lastResetDate)) {
-              console.log("🔄 Daily reset triggered");
-              const resetTodos = resetDailyTodos(saved.todos);
-              const newState = {
-                ...saved,
-                todos: resetTodos,
-                lastResetDate: new Date(),
-              };
-              setAppState(newState);
-              await saveAppStateToFirestore(newState);
-            } else {
-              setAppState(saved);
-            }
-          } else {
-            // Initialize with config data
-            const today = new Date();
-            const initialTodos: TodoItem[] = tasksConfig.tasks.map((task) => ({
-              ...task,
-              completionTier: CompletionTier.NONE,
-              history: [],
-              recurrence: {
-                type: task.recurrence.type as "daily" | "weekly",
-                dayOfWeek: task.recurrence.dayOfWeek,
-              },
-            }));
-
-            const initialState: AppState = {
-              hp: 1000, // Starting HP ($10.00)
-              todos: initialTodos,
-              sections: tasksConfig.sections,
-              lastResetDate: today,
-            };
-
-            setAppState(initialState);
-            await saveAppStateToFirestore(initialState);
-          }
-
-          // Set up real-time listener
-          unsubscribeFirestore = subscribeToAppState((state) => {
-            if (state) {
-              // Only update if this is a fresh update from Firebase (not our own update)
-              const now = Date.now();
-              if (now - lastUpdateTimeRef.current > 2000) {
-                // 2 second buffer
-                setAppState(state);
-              }
-            }
-          });
-        } else {
-          // No user signed in, fallback to localStorage
-          const saved = loadAppState();
-          if (saved) {
-            setAppState(saved);
-          }
-        }
-      } catch (error) {
-        console.error("Error initializing app:", error);
-
-        // Check if it's a Firebase API key error
-        if (
-          error instanceof Error &&
-          (error.message.includes("API key") ||
-            error.message.includes("permission") ||
-            error.message.includes("unauthorized") ||
-            error.message.includes("invalid"))
-        ) {
-          console.warn(
-            "Firebase API key appears to be invalid, falling back to localStorage"
-          );
-        }
-
-        // Fallback to localStorage if Firestore fails
-        const saved = loadAppState();
-        if (saved) {
-          setAppState(saved);
-        } else {
-          // Initialize with config data if no saved data
-          const today = new Date();
-          const initialTodos: TodoItem[] = tasksConfig.tasks.map((task) => ({
-            ...task,
-            completionTier: CompletionTier.NONE,
-            history: [],
-            recurrence: {
-              type: task.recurrence.type as "daily" | "weekly",
-              dayOfWeek: task.recurrence.dayOfWeek,
-            },
-          }));
-
-          const initialState: AppState = {
-            hp: 1000,
-            todos: initialTodos,
-            sections: tasksConfig.sections,
-            lastResetDate: today,
-          };
-
-          setAppState(initialState);
-          saveAppState(initialState);
-        }
-      } finally {
-        setIsLoading(false);
+    const saved = loadAppState();
+    if (saved) {
+      // Check if tasks need to be reset
+      if (shouldResetTasks(saved.lastResetDate)) {
+        const resetTodos = resetDailyTodos(saved.todos);
+        const newState = {
+          ...saved,
+          todos: resetTodos,
+          lastResetDate: new Date(),
+        };
+        setAppState(newState);
+        saveAppState(newState);
+      } else {
+        setAppState(saved);
       }
-    };
+    } else {
+      // Initialize with config data
+      const today = new Date();
+      const initialTodos: TodoItem[] = tasksConfig.tasks.map((task) => ({
+        ...task,
+        completionTier: CompletionTier.NONE,
+        history: [],
+        recurrence: {
+          type: task.recurrence.type as "daily" | "weekly",
+          dayOfWeek: task.recurrence.dayOfWeek,
+        },
+      }));
 
-    // Listen to auth state changes
-    // eslint-disable-next-line prefer-const
-    unsubscribeAuth = onAuthStateChange(async (user) => {
-      setUser(user);
-      await initializeApp(user);
-    });
+      const initialState: AppState = {
+        hp: 1000, // Starting HP ($10.00)
+        todos: initialTodos,
+        sections: tasksConfig.sections,
+        lastResetDate: today,
+      };
 
-    // Cleanup listeners on unmount
-    return () => {
-      if (unsubscribeAuth) {
-        unsubscribeAuth();
-      }
-      if (unsubscribeFirestore) {
-        unsubscribeFirestore();
-      }
-    };
+      setAppState(initialState);
+      saveAppState(initialState);
+    }
   }, []);
 
-  // Save state to appropriate storage whenever it changes
+  // Save state to localStorage whenever it changes
   useEffect(() => {
     if (appState) {
-      if (user) {
-        saveAppStateToFirestore(appState).catch((error) => {
-          console.error("❌ Error saving to Firestore:", error);
-          // Fallback to localStorage
-          saveAppState(appState);
-        });
-      } else {
-        saveAppState(appState);
-      }
+      saveAppState(appState);
     }
-  }, [appState, user]);
+  }, [appState]);
 
   const handleTodoCompletion = (id: string, tier: CompletionTier) => {
     if (!appState) return;
-
-    // Update the timestamp to prevent race conditions
-    lastUpdateTimeRef.current = Date.now();
 
     const updatedTodos = updateTodoCompletion(appState.todos, id, tier);
 
@@ -204,9 +83,6 @@ function App() {
 
     const adjustment = parseInt(hpAdjustment);
     if (!isNaN(adjustment)) {
-      // Update the timestamp to prevent race conditions
-      lastUpdateTimeRef.current = Date.now();
-
       setAppState({
         ...appState,
         hp: appState.hp + adjustment,
@@ -215,7 +91,7 @@ function App() {
     }
   };
 
-  const handleEndOfDayReset = async () => {
+  const handleEndOfDayReset = () => {
     if (!appState) return;
 
     // Calculate HP change for today
@@ -233,19 +109,6 @@ function App() {
     };
 
     setAppState(newState);
-
-    // Save to appropriate storage based on user authentication
-    if (user) {
-      try {
-        await saveAppStateToFirestore(newState);
-      } catch (error) {
-        console.error("❌ Error saving to Firestore:", error);
-        // Fallback to localStorage
-        saveAppState(newState);
-      }
-    } else {
-      saveAppState(newState);
-    }
   };
 
   const handleClearStorage = () => {
@@ -258,10 +121,6 @@ function App() {
     return appState.todos.filter((todo) => todo.section === sectionName);
   };
 
-  if (isLoading) {
-    return <div className="loading">Loading...</div>;
-  }
-
   if (!appState) {
     return <div className="loading">Loading...</div>;
   }
@@ -270,8 +129,6 @@ function App() {
 
   return (
     <div className="app">
-      <AuthButton user={user} onUserChange={setUser} />
-
       <header className="app-header">
         <h1>Life Helper</h1>
         <div className="hp-display">
