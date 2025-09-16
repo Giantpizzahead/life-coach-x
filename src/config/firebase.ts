@@ -3,6 +3,7 @@ import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 // Firebase configuration
+// API key is a secret just so Github doesn't complain
 const apiKey = import.meta.env.VITE_FIREBASE_API_KEY;
 
 // Check if API key is provided
