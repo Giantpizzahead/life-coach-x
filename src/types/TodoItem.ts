@@ -1,4 +1,5 @@
 export const CompletionTier = {
+  UNSELECTED: "unselected",
   NONE: "none",
   MINIMUM: "minimum",
   FULL: "full",

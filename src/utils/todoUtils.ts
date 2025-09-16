@@ -6,6 +6,8 @@ export const calculateHpForTier = (
   tier: CompletionTier
 ): number => {
   switch (tier) {
+    case CompletionTier.UNSELECTED:
+      return 0; // Unselected tasks don't contribute to HP
     case CompletionTier.NONE:
       return todo.hpValues.none;
     case CompletionTier.MINIMUM:
@@ -75,6 +77,19 @@ export const updateTodoCompletion = (
 export const calculateDailyHpChange = (todos: TodoItem[]): number => {
   return todos.reduce((total, todo) => {
     if (!isTaskRequiredToday(todo)) return total;
+    // Treat unselected tasks as none for HP calculation
+    const effectiveTier =
+      todo.completionTier === CompletionTier.UNSELECTED
+        ? CompletionTier.NONE
+        : todo.completionTier;
+    return total + calculateHpForTier(todo, effectiveTier);
+  }, 0);
+};
+
+export const calculateDailyHpChangePreview = (todos: TodoItem[]): number => {
+  return todos.reduce((total, todo) => {
+    if (!isTaskRequiredToday(todo)) return total;
+    // Show actual HP values for preview (unselected shows 0)
     return total + calculateHpForTier(todo, todo.completionTier);
   }, 0);
 };
@@ -96,7 +111,7 @@ export const shouldResetTasks = (lastResetDate: Date): boolean => {
 export const resetDailyTodos = (todos: TodoItem[]): TodoItem[] => {
   return todos.map((todo) => ({
     ...todo,
-    completionTier: CompletionTier.NONE,
+    completionTier: CompletionTier.UNSELECTED,
   }));
 };
 

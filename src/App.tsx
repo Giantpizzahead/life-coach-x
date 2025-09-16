@@ -6,6 +6,7 @@ import StatusIndicator from "./components/StatusIndicator";
 import {
   updateTodoCompletion,
   calculateDailyHpChange,
+  calculateDailyHpChangePreview,
   shouldResetTasks,
   resetDailyTodos,
   incrementResetDate,
@@ -53,7 +54,7 @@ function App() {
       // Initialize with config data
       const initialTodos: TodoItem[] = tasksConfig.tasks.map((task) => ({
         ...task,
-        completionTier: CompletionTier.NONE,
+        completionTier: CompletionTier.UNSELECTED,
         history: [],
         recurrence: {
           type: task.recurrence.type as "daily" | "weekly" | "monthly",
@@ -216,7 +217,7 @@ function App() {
     return <div className="loading">Loading...</div>;
   }
 
-  const todayHpChange = calculateDailyHpChange(appState.todos);
+  const todayHpChange = calculateDailyHpChangePreview(appState.todos);
 
   return (
     <div className="app">
@@ -239,18 +240,16 @@ function App() {
               {Math.abs(appState.hp / 100).toFixed(2)}
             </span>
           </div>
-          {todayHpChange !== 0 && (
-            <div className="today-change">
-              <span className="hp-label">Today:</span>
-              <span
-                className={`hp-change ${
-                  todayHpChange > 0 ? "positive" : "negative"
-                }`}>
-                {todayHpChange > 0 ? "+" : "-"}$
-                {Math.abs(todayHpChange / 100).toFixed(2)}
-              </span>
-            </div>
-          )}
+          <div className="today-change">
+            <span className="hp-label">Today:</span>
+            <span
+              className={`hp-change ${
+                todayHpChange < 0 ? "negative" : "positive"
+              }`}>
+              {todayHpChange < 0 ? "-" : "+"}$
+              {Math.abs(todayHpChange / 100).toFixed(2)}
+            </span>
+          </div>
         </div>
       </header>
 

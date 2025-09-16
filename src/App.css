@@ -525,6 +525,24 @@
   line-height: 1.4;
 }
 
+.todo-description p {
+  margin: 0;
+}
+
+.todo-description p:last-child {
+  margin-bottom: 0;
+}
+
+.todo-description strong {
+  font-weight: 600;
+  color: #111827;
+}
+
+.todo-description em {
+  font-style: italic;
+  color: #4b5563;
+}
+
 .not-required-indicator {
   padding: 0.5rem 1rem;
   background-color: #f3f4f6;

@@ -42,12 +42,52 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo, onCompletionChange }) => {
     return "";
   };
 
+  const renderMarkdown = (text: string): React.ReactElement[] => {
+    const lines = text.split("\n");
+    const elements: React.ReactElement[] = [];
+    let key = 0;
+
+    lines.forEach((line) => {
+      if (line.trim() === "") {
+        elements.push(<br key={key++} />);
+        return;
+      }
+
+      // Parse inline formatting
+      const parts = line.split(/(\*\*.*?\*\*|\*.*?\*|_.*?_)/g);
+      const lineElements = parts.map((part, partIndex) => {
+        if (part.startsWith("**") && part.endsWith("**")) {
+          return (
+            <strong key={`${key}-${partIndex}`}>{part.slice(2, -2)}</strong>
+          );
+        } else if (part.startsWith("*") && part.endsWith("*")) {
+          return <em key={`${key}-${partIndex}`}>{part.slice(1, -1)}</em>;
+        } else if (part.startsWith("_") && part.endsWith("_")) {
+          return <em key={`${key}-${partIndex}`}>{part.slice(1, -1)}</em>;
+        } else {
+          return <span key={`${key}-${partIndex}`}>{part}</span>;
+        }
+      });
+
+      elements.push(<p key={key++}>{lineElements}</p>);
+    });
+
+    return elements;
+  };
+
   const handleTierChange = (tier: CompletionTier) => {
-    onCompletionChange(todo.id, tier);
+    // If clicking the currently selected tier, unselect it
+    if (todo.completionTier === tier) {
+      onCompletionChange(todo.id, CompletionTier.UNSELECTED);
+    } else {
+      onCompletionChange(todo.id, tier);
+    }
   };
 
   const getTierLabel = (tier: CompletionTier) => {
     switch (tier) {
+      case CompletionTier.UNSELECTED:
+        return "Unselected";
       case CompletionTier.NONE:
         return "None";
       case CompletionTier.MINIMUM:
@@ -61,6 +101,8 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo, onCompletionChange }) => {
 
   const getHpValue = (tier: CompletionTier) => {
     switch (tier) {
+      case CompletionTier.UNSELECTED:
+        return 0; // Unselected shows 0 HP
       case CompletionTier.NONE:
         return todo.hpValues.none;
       case CompletionTier.MINIMUM:
@@ -132,7 +174,9 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo, onCompletionChange }) => {
       </div>
 
       {todo.description && showDescription && (
-        <p className="todo-description">{todo.description}</p>
+        <div className="todo-description">
+          {renderMarkdown(todo.description)}
+        </div>
       )}
     </div>
   );
