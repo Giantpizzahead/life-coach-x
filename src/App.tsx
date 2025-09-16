@@ -228,7 +228,7 @@ function App() {
         isSaving={isSaving}
       />
       <header className="app-header">
-        <h1>Life Coach X</h1>
+        <h1>Systems X</h1>
         <div className="hp-display">
           <div className="current-hp">
             <span className="hp-label">HP:</span>

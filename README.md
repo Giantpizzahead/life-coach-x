@@ -1,4 +1,4 @@
-# Life Helper
+# Life Coach X
 
 [Link to app](https://giantpizzahead.github.io/life-coach-x/)
 
