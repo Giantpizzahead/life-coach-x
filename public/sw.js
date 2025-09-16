@@ -1,12 +1,12 @@
 const CACHE_NAME = "life-helper-v1";
 const urlsToCache = [
-  "/",
-  "/index.html",
-  "/static/js/bundle.js",
-  "/static/css/main.css",
-  "/manifest.json",
-  "/logo.png",
-  "/lifecoachx.png",
+  "/life-coach-x/",
+  "/life-coach-x/index.html",
+  "/life-coach-x/static/js/bundle.js",
+  "/life-coach-x/static/css/main.css",
+  "/life-coach-x/manifest.json",
+  "/life-coach-x/logo.png",
+  "/life-coach-x/lifecoachx.png",
 ];
 
 // Install event - cache resources
@@ -37,7 +37,7 @@ self.addEventListener("fetch", (event) => {
         console.log("Fetch failed:", error);
         // Return a fallback page or response
         if (event.request.destination === "document") {
-          return caches.match("/index.html");
+          return caches.match("/life-coach-x/index.html");
         }
       })
   );
