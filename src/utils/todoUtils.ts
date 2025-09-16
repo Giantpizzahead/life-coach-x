@@ -17,8 +17,23 @@ export const calculateHpForTier = (
   }
 };
 
+// Helper function to get the current "day" based on 6 AM reset schedule
+const getCurrentDay = (): Date => {
+  const now = new Date();
+  const today = new Date(now);
+
+  // If it's before 6 AM, we're still in "yesterday's" day
+  if (now.getHours() < 6) {
+    today.setDate(today.getDate() - 1);
+  }
+
+  // Set to 6 AM for consistent comparison
+  today.setHours(6, 0, 0, 0);
+  return today;
+};
+
 export const isTaskRequiredToday = (todo: TodoItem): boolean => {
-  const today = new Date();
+  const today = getCurrentDay();
   const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
 
   switch (todo.recurrence.type) {
@@ -36,8 +51,7 @@ export const updateTodoCompletion = (
   id: string,
   tier: CompletionTier
 ): TodoItem[] => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0); // Start of day for comparison
+  const today = getCurrentDay();
 
   return todos.map((todo) =>
     todo.id === id
@@ -63,11 +77,17 @@ export const calculateDailyHpChange = (todos: TodoItem[]): number => {
 };
 
 export const shouldResetTasks = (lastResetDate: Date): boolean => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const now = new Date();
   const lastReset = new Date(lastResetDate);
-  lastReset.setHours(0, 0, 0, 0);
-  return lastReset.getTime() !== today.getTime();
+
+  // Set last reset to 6 AM
+  lastReset.setHours(6, 0, 0, 0);
+
+  // Check if 24 hours have passed since last reset at 6 AM
+  const twentyFourHoursLater = new Date(lastReset);
+  twentyFourHoursLater.setHours(twentyFourHoursLater.getHours() + 24);
+
+  return now.getTime() >= twentyFourHoursLater.getTime();
 };
 
 export const resetDailyTodos = (todos: TodoItem[]): TodoItem[] => {
@@ -75,6 +95,12 @@ export const resetDailyTodos = (todos: TodoItem[]): TodoItem[] => {
     ...todo,
     completionTier: CompletionTier.NONE,
   }));
+};
+
+export const incrementResetDate = (lastResetDate: Date): Date => {
+  const newDate = new Date(lastResetDate);
+  newDate.setDate(newDate.getDate() + 1);
+  return newDate;
 };
 
 export const loadAppState = (): AppState | null => {

@@ -8,6 +8,7 @@ import {
   calculateDailyHpChange,
   shouldResetTasks,
   resetDailyTodos,
+  incrementResetDate,
 } from "./utils/todoUtils";
 import { useDataSync } from "./hooks/useDataSync";
 import { useAuth } from "./contexts/AuthContext";
@@ -22,11 +23,25 @@ function App() {
   const [manualState, setManualState] = useState("");
   const [isEditingState, setIsEditingState] = useState(false);
 
+  // Helper function to get the 6 AM that's "behind" the current time
+  const getLastResetDate = (): Date => {
+    const now = new Date();
+    const lastResetDate = new Date(now);
+
+    // Set to the 6 AM that's "behind" the current time
+    if (now.getHours() < 6) {
+      // Before 6 AM: use yesterday's 6 AM
+      lastResetDate.setDate(lastResetDate.getDate() - 1);
+    }
+    lastResetDate.setHours(6, 0, 0, 0);
+
+    return lastResetDate;
+  };
+
   // Initialize app state if none exists
   useEffect(() => {
     if (!appState && !isLoading) {
       // Initialize with config data
-      const today = new Date();
       const initialTodos: TodoItem[] = tasksConfig.tasks.map((task) => ({
         ...task,
         completionTier: CompletionTier.NONE,
@@ -38,10 +53,11 @@ function App() {
       }));
 
       const initialState: AppState = {
+        version: 1, // Current app state version
         hp: 1000, // Starting HP ($10.00)
         todos: initialTodos,
         sections: tasksConfig.sections,
-        lastResetDate: today,
+        lastResetDate: getLastResetDate(),
       };
 
       updateAppState(initialState);
@@ -51,11 +67,20 @@ function App() {
   // Check if tasks need to be reset
   useEffect(() => {
     if (appState && shouldResetTasks(appState.lastResetDate)) {
+      // Calculate HP change for the previous day's completions
+      const hpChange = calculateDailyHpChange(appState.todos);
+
+      // Reset all tasks to NONE
       const resetTodos = resetDailyTodos(appState.todos);
+
+      // Increment the reset date by one day (instead of creating new date)
+      const newResetDate = incrementResetDate(appState.lastResetDate);
+
       const newState = {
         ...appState,
+        hp: appState.hp + hpChange,
         todos: resetTodos,
-        lastResetDate: new Date(),
+        lastResetDate: newResetDate,
       };
       updateAppState(newState);
     }
@@ -108,7 +133,7 @@ function App() {
       ...appState,
       hp: appState.hp + hpChange,
       todos: resetTodos,
-      lastResetDate: new Date(),
+      lastResetDate: getLastResetDate(),
     };
 
     updateAppState(newState);

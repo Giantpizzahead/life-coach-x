@@ -25,12 +25,15 @@ export const serializeAppState = (state: AppState) => {
 };
 
 // Convert Firestore data back to AppState
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const deserializeAppState = (data: any): AppState => {
   return {
     ...data,
     lastResetDate: new Date(data.lastResetDate),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     todos: data.todos.map((todo: any) => ({
       ...todo,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       history: todo.history.map((entry: any) => ({
         ...entry,
         date: new Date(entry.date),

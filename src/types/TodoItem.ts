@@ -36,6 +36,7 @@ export interface TodoSection {
 }
 
 export interface AppState {
+  version: number; // App state version for backwards compatibility
   hp: number;
   todos: TodoItem[];
   sections: TodoSection[];
