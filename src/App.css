@@ -666,3 +666,67 @@
 .clear-button:hover {
   background-color: #b91c1c;
 }
+
+/* Manual State Editor */
+.manual-state-editor {
+  margin-top: 1.5rem;
+}
+
+.manual-state-editor h4 {
+  margin: 0 0 0.75rem 0;
+  color: #f3f4f6;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.state-editor-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.state-editor-controls .debug-button {
+  background-color: #2563eb;
+  color: white;
+}
+
+.state-editor-controls .debug-button:hover:not(:disabled) {
+  background-color: #1d4ed8;
+}
+
+.state-editor-controls .debug-button:disabled {
+  background-color: #6b7280;
+  cursor: not-allowed;
+}
+
+.editing-indicator {
+  color: #fbbf24;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.state-textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #4b5563;
+  border-radius: 6px;
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  background-color: #111827;
+  color: #f3f4f6;
+  resize: vertical;
+  min-height: 300px;
+}
+
+.state-textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25);
+}
+
+.state-textarea::placeholder {
+  color: #6b7280;
+}
