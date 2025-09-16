@@ -20,8 +20,9 @@ export interface TodoItem {
     bonus: number | null; // null if no bonus tier
   };
   recurrence: {
-    type: "daily" | "weekly";
-    dayOfWeek?: number; // For weekly: 0 = Sunday, 1 = Monday, etc.
+    type: "daily" | "weekly" | "monthly";
+    daysOfWeek?: number[]; // For weekly: array of days, 0 = Sunday, 1 = Monday, etc.
+    daysOfMonth?: number[]; // For monthly: array of days, 1-31
   };
   completionTier: CompletionTier;
   history: {

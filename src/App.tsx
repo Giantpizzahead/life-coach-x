@@ -56,8 +56,9 @@ function App() {
         completionTier: CompletionTier.NONE,
         history: [],
         recurrence: {
-          type: task.recurrence.type as "daily" | "weekly",
-          dayOfWeek: task.recurrence.dayOfWeek,
+          type: task.recurrence.type as "daily" | "weekly" | "monthly",
+          daysOfWeek: task.recurrence.daysOfWeek,
+          daysOfMonth: task.recurrence.daysOfMonth,
         },
       }));
 

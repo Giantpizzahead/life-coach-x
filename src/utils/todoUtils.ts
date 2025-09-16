@@ -35,12 +35,15 @@ const getCurrentDay = (): Date => {
 export const isTaskRequiredToday = (todo: TodoItem): boolean => {
   const today = getCurrentDay();
   const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+  const dayOfMonth = today.getDate(); // 1-31
 
   switch (todo.recurrence.type) {
     case "daily":
       return true;
     case "weekly":
-      return todo.recurrence.dayOfWeek === dayOfWeek;
+      return todo.recurrence.daysOfWeek?.includes(dayOfWeek) ?? false;
+    case "monthly":
+      return todo.recurrence.daysOfMonth?.includes(dayOfMonth) ?? false;
     default:
       return false;
   }

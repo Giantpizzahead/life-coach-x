@@ -4,7 +4,8 @@
     { "name": "Afternoon", "order": 2 },
     { "name": "Evening", "order": 3 },
     { "name": "Weekly", "order": 4 },
-    { "name": "Other", "order": 5 }
+    { "name": "Monthly", "order": 5 },
+    { "name": "Other", "order": 6 }
   ],
   "tasks": [
     {
@@ -50,7 +51,7 @@
       },
       "recurrence": {
         "type": "weekly",
-        "dayOfWeek": 1
+        "daysOfWeek": [1, 2, 3, 4, 5]
       }
     },
     {
@@ -66,7 +67,7 @@
       },
       "recurrence": {
         "type": "weekly",
-        "dayOfWeek": 0
+        "daysOfWeek": [0]
       }
     },
     {
@@ -82,6 +83,38 @@
       },
       "recurrence": {
         "type": "daily"
+      }
+    },
+    {
+      "id": "rent-payment",
+      "name": "Rent Payment",
+      "description": "Pay monthly rent and utilities",
+      "section": "Monthly",
+      "hpValues": {
+        "none": -5000,
+        "minimum": null,
+        "full": 2000,
+        "bonus": null
+      },
+      "recurrence": {
+        "type": "monthly",
+        "daysOfMonth": [1]
+      }
+    },
+    {
+      "id": "monthly-review",
+      "name": "Monthly Review",
+      "description": "Review goals, budget, and plan for next month",
+      "section": "Monthly",
+      "hpValues": {
+        "none": -2000,
+        "minimum": 1000,
+        "full": 2500,
+        "bonus": 4000
+      },
+      "recurrence": {
+        "type": "monthly",
+        "daysOfMonth": [1, 15]
       }
     }
   ]

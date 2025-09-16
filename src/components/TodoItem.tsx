@@ -12,6 +12,36 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo, onCompletionChange }) => {
   const [showDescription, setShowDescription] = useState(false);
   const isRequired = isTaskRequiredToday(todo);
 
+  const getDayName = (dayNumber: number): string => {
+    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    return days[dayNumber];
+  };
+
+  const getDaysDisplay = (): string => {
+    if (todo.recurrence.type === "daily") {
+      return "Daily";
+    } else if (
+      todo.recurrence.type === "weekly" &&
+      todo.recurrence.daysOfWeek
+    ) {
+      const dayNames = todo.recurrence.daysOfWeek.map(getDayName);
+      return dayNames.join(", ");
+    } else if (
+      todo.recurrence.type === "monthly" &&
+      todo.recurrence.daysOfMonth
+    ) {
+      const sortedDays = [...todo.recurrence.daysOfMonth].sort((a, b) => a - b);
+      const dayStrings = sortedDays.map((day) => {
+        if (day === 1 || day === 21 || day === 31) return `${day}st`;
+        if (day === 2 || day === 22) return `${day}nd`;
+        if (day === 3 || day === 23) return `${day}rd`;
+        return `${day}th`;
+      });
+      return dayStrings.join(", ");
+    }
+    return "";
+  };
+
   const handleTierChange = (tier: CompletionTier) => {
     onCompletionChange(todo.id, tier);
   };
@@ -60,11 +90,14 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo, onCompletionChange }) => {
   return (
     <div className={`todo-item ${!isRequired ? "not-required" : ""}`}>
       <div className="todo-header">
-        <h3
-          className="todo-name clickable"
-          onClick={() => setShowDescription(!showDescription)}>
-          {todo.name}
-        </h3>
+        <div className="todo-title-section">
+          <h3
+            className="todo-name clickable"
+            onClick={() => setShowDescription(!showDescription)}>
+            {todo.name}
+          </h3>
+          <span className="todo-schedule">{getDaysDisplay()}</span>
+        </div>
         {isRequired ? (
           <div className="completion-capsules">
             {tiers.map((tier) => (
