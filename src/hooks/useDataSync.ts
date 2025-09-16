@@ -15,27 +15,75 @@ interface UseDataSyncReturn {
   saveMethod: SaveMethod;
   isLoading: boolean;
   error: string | null;
+  isSaving: boolean;
   updateAppState: (newState: AppState) => Promise<void>;
   clearError: () => void;
 }
 
-export const useDataSync = (user: User | null): UseDataSyncReturn => {
+export const useDataSync = (
+  user: User | null,
+  authLoading: boolean
+): UseDataSyncReturn => {
   const [appState, setAppState] = useState<AppState | null>(null);
   const [saveMethod, setSaveMethod] = useState<SaveMethod>("localStorage");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [showSaving, setShowSaving] = useState(false);
 
   const clearError = useCallback(() => {
     setError(null);
   }, []);
 
+  // Show saving indicator only after 1 second delay
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+
+    if (isSaving) {
+      timeoutId = setTimeout(() => {
+        setShowSaving(true);
+      }, 1000);
+    } else {
+      setShowSaving(false);
+    }
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [isSaving]);
+
   const updateAppState = useCallback(
     async (newState: AppState) => {
       try {
         setAppState(newState);
+        setError(null); // Clear any previous errors
 
         if (saveMethod === "firebase" && user) {
-          await updateAppStateInFirebase(user.uid, newState);
+          setIsSaving(true);
+          try {
+            await updateAppStateInFirebase(user.uid, newState);
+            setIsSaving(false);
+          } catch (err) {
+            setIsSaving(false);
+            console.error("Error updating app state:", err);
+
+            // Check if it's a network error
+            if (
+              err instanceof Error &&
+              (err.message.includes("ERR_INTERNET_DISCONNECTED") ||
+                err.message.includes("Failed to fetch") ||
+                err.message.includes("NetworkError") ||
+                err.message.includes("offline"))
+            ) {
+              setError(
+                "Offline - changes will sync when connection is restored"
+              );
+            } else {
+              setError("Failed to save data. Please check your connection.");
+            }
+          }
         } else {
           saveAppState(newState);
         }
@@ -50,6 +98,11 @@ export const useDataSync = (user: User | null): UseDataSyncReturn => {
   // Initialize data based on auth state
   useEffect(() => {
     const initializeData = async () => {
+      // Don't start loading data until auth state is determined
+      if (authLoading) {
+        return;
+      }
+
       setIsLoading(true);
       setError(null);
 
@@ -103,13 +156,14 @@ export const useDataSync = (user: User | null): UseDataSyncReturn => {
     };
 
     initializeData();
-  }, [user]);
+  }, [user, authLoading]);
 
   return {
     appState,
     saveMethod,
     isLoading,
     error,
+    isSaving: showSaving,
     updateAppState,
     clearError,
   };

@@ -6,12 +6,14 @@ interface StatusIndicatorProps {
   saveMethod: SaveMethod;
   isLoading?: boolean;
   error?: string | null;
+  isSaving?: boolean;
 }
 
 const StatusIndicator: React.FC<StatusIndicatorProps> = ({
   saveMethod,
   isLoading = false,
   error = null,
+  isSaving = false,
 }) => {
   const {
     user,
@@ -38,6 +40,7 @@ const StatusIndicator: React.FC<StatusIndicatorProps> = ({
 
   const getStatusColor = () => {
     if (error) return "#ff4444";
+    if (isSaving) return "#ffaa00";
     if (isLoading || authLoading) return "#ffaa00";
     if (saveMethod === "firebase") return "#44ff44";
     return "#888888";
@@ -45,6 +48,7 @@ const StatusIndicator: React.FC<StatusIndicatorProps> = ({
 
   const getStatusText = () => {
     if (error) return "Error";
+    if (isSaving) return "Saving...";
     if (isLoading || authLoading) return "Loading...";
     if (saveMethod === "firebase") return "Cloud Sync";
     return "Local Only";

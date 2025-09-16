@@ -15,9 +15,9 @@ import tasksConfig from "./config/tasks.json";
 import "./App.css";
 
 function App() {
-  const { user } = useAuth();
-  const { appState, saveMethod, isLoading, error, updateAppState } =
-    useDataSync(user);
+  const { user, loading: authLoading } = useAuth();
+  const { appState, saveMethod, isLoading, error, isSaving, updateAppState } =
+    useDataSync(user, authLoading);
   const [hpAdjustment, setHpAdjustment] = useState("");
 
   // Initialize app state if none exists
@@ -114,7 +114,7 @@ function App() {
     return appState.todos.filter((todo) => todo.section === sectionName);
   };
 
-  if (isLoading || !appState) {
+  if (authLoading || isLoading || !appState) {
     return <div className="loading">Loading...</div>;
   }
 
@@ -126,9 +126,10 @@ function App() {
         saveMethod={saveMethod}
         isLoading={isLoading}
         error={error}
+        isSaving={isSaving}
       />
       <header className="app-header">
-        <h1>Life Helper</h1>
+        <h1>Life Coach X</h1>
         <div className="hp-display">
           <div className="current-hp">
             <span className="hp-label">HP:</span>
