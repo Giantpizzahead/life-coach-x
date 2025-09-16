@@ -141,17 +141,22 @@ export const saveAppState = (state: AppState): void => {
     // Convert Date objects to strings for JSON serialization
     const serializable = {
       ...state,
-      lastResetDate: new Date(state.lastResetDate).toISOString(),
+      lastResetDate:
+        state.lastResetDate instanceof Date
+          ? state.lastResetDate.toISOString()
+          : state.lastResetDate,
       todos: state.todos.map((todo) => ({
         ...todo,
         history: todo.history.map((entry) => ({
           ...entry,
-          date: new Date(entry.date).toISOString(),
+          date:
+            entry.date instanceof Date ? entry.date.toISOString() : entry.date,
         })),
       })),
       hpHistory: state.hpHistory.map((entry) => ({
         ...entry,
-        date: new Date(entry.date).toISOString(),
+        date:
+          entry.date instanceof Date ? entry.date.toISOString() : entry.date,
       })),
     };
 

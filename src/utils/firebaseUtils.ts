@@ -12,17 +12,21 @@ import type { AppState } from "../types/TodoItem";
 export const serializeAppState = (state: AppState) => {
   return {
     ...state,
-    lastResetDate: state.lastResetDate.toISOString(),
+    lastResetDate:
+      state.lastResetDate instanceof Date
+        ? state.lastResetDate.toISOString()
+        : state.lastResetDate,
     todos: state.todos.map((todo) => ({
       ...todo,
       history: todo.history.map((entry) => ({
         ...entry,
-        date: entry.date.toISOString(),
+        date:
+          entry.date instanceof Date ? entry.date.toISOString() : entry.date,
       })),
     })),
     hpHistory: state.hpHistory.map((entry) => ({
       ...entry,
-      date: entry.date.toISOString(),
+      date: entry.date instanceof Date ? entry.date.toISOString() : entry.date,
     })),
     updatedAt: serverTimestamp(),
   };
