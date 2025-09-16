@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import type { TodoItem as TodoItemType } from "../types/TodoItem";
 import { CompletionTier } from "../types/TodoItem";
 import { isTaskRequiredToday } from "../utils/todoUtils";
@@ -10,7 +10,18 @@ interface TodoItemProps {
 
 const TodoItem: React.FC<TodoItemProps> = ({ todo, onCompletionChange }) => {
   const [showDescription, setShowDescription] = useState(false);
+  const [subtasks, setSubtasks] = useState<boolean[]>([]);
   const isRequired = isTaskRequiredToday(todo);
+
+  // Initialize subtasks when description opens, reset when it closes
+  useEffect(() => {
+    if (showDescription && todo.description) {
+      const subtaskTexts = parseSubtasks(todo.description);
+      setSubtasks(new Array(subtaskTexts.length).fill(false));
+    } else {
+      setSubtasks([]);
+    }
+  }, [showDescription, todo.description]);
 
   const getDayName = (dayNumber: number): string => {
     const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -42,6 +53,25 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo, onCompletionChange }) => {
     return "";
   };
 
+  const parseSubtasks = (text: string): string[] => {
+    const lines = text.split("\n");
+    const subtaskLines: string[] = [];
+
+    lines.forEach((line) => {
+      const trimmed = line.trim();
+      // Look for lines that start with - [ ] or - [x] (markdown checkbox format)
+      if (trimmed.match(/^-\s*\[[\sx]\]\s+/)) {
+        // Extract the text after the checkbox
+        const match = trimmed.match(/^-\s*\[[\sx]\]\s+(.+)$/);
+        if (match) {
+          subtaskLines.push(match[1]);
+        }
+      }
+    });
+
+    return subtaskLines;
+  };
+
   const renderMarkdown = (text: string): React.ReactElement[] => {
     const lines = text.split("\n");
     const elements: React.ReactElement[] = [];
@@ -50,6 +80,13 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo, onCompletionChange }) => {
     lines.forEach((line) => {
       if (line.trim() === "") {
         elements.push(<br key={key++} />);
+        return;
+      }
+
+      // Check if this is a subtask line
+      const trimmed = line.trim();
+      if (trimmed.match(/^-\s*\[[\sx]\]\s+/)) {
+        // Skip subtask lines in markdown rendering - they'll be handled separately
         return;
       }
 
@@ -82,6 +119,14 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo, onCompletionChange }) => {
     } else {
       onCompletionChange(todo.id, tier);
     }
+  };
+
+  const handleSubtaskChange = (index: number) => {
+    setSubtasks((prev) => {
+      const newSubtasks = [...prev];
+      newSubtasks[index] = !newSubtasks[index];
+      return newSubtasks;
+    });
   };
 
   const getTierLabel = (tier: CompletionTier) => {
@@ -176,6 +221,21 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo, onCompletionChange }) => {
       {todo.description && showDescription && (
         <div className="todo-description">
           {renderMarkdown(todo.description)}
+          {parseSubtasks(todo.description).length > 0 && (
+            <div className="subtasks">
+              <h4>Subtasks:</h4>
+              {parseSubtasks(todo.description).map((subtaskText, index) => (
+                <label key={index} className="subtask-item">
+                  <input
+                    type="checkbox"
+                    checked={subtasks[index] || false}
+                    onChange={() => handleSubtaskChange(index)}
+                  />
+                  <span className="subtask-text">{subtaskText}</span>
+                </label>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>

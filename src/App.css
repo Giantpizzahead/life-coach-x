@@ -441,12 +441,12 @@
 }
 
 .tier-capsule.none {
-  background-color: #f3f4f6;
-  color: #6b7280;
+  background-color: #e5e7eb;
+  color: #4b5563;
 }
 
 .tier-capsule.none:hover {
-  background-color: #e5e7eb;
+  background-color: #d1d5db;
 }
 
 .tier-capsule.none.selected {
@@ -531,6 +531,45 @@
 
 .todo-description p:last-child {
   margin-bottom: 0;
+}
+
+.subtasks {
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.subtasks h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.subtask-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.subtask-item input[type="checkbox"] {
+  margin: 0;
+  cursor: pointer;
+  accent-color: #9ca3af;
+  transform: scale(0.9);
+  filter: brightness(1.2);
+}
+
+.subtask-item input[type="checkbox"]:not(:checked) {
+  filter: brightness(1.5) opacity(0.7);
+}
+
+.subtask-text {
+  flex: 1;
+  line-height: 1.4;
 }
 
 .todo-description strong {
