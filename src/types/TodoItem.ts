@@ -35,10 +35,17 @@ export interface TodoSection {
   order: number;
 }
 
+export interface HpHistoryEntry {
+  date: Date;
+  hp: number; // The actual HP value at this point
+  reason: string; // e.g., "Starting HP", "Daily reset", "Manual adjustment", "Task completion"
+}
+
 export interface AppState {
   version: number; // App state version for backwards compatibility
   hp: number;
   todos: TodoItem[];
   sections: TodoSection[];
   lastResetDate: Date; // Tracks when tasks were last reset
+  hpHistory: HpHistoryEntry[]; // Track HP values over time
 }

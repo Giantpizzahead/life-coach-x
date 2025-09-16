@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import type { AppState, TodoItem } from "./types/TodoItem";
+import type { AppState, TodoItem, HpHistoryEntry } from "./types/TodoItem";
 import { CompletionTier } from "./types/TodoItem";
 import TodoItemComponent from "./components/TodoItem";
 import StatusIndicator from "./components/StatusIndicator";
@@ -38,6 +38,15 @@ function App() {
     return lastResetDate;
   };
 
+  // Helper function to add HP history entry
+  const addHpHistoryEntry = (hp: number, reason: string): HpHistoryEntry => {
+    return {
+      date: new Date(),
+      hp,
+      reason,
+    };
+  };
+
   // Initialize app state if none exists
   useEffect(() => {
     if (!appState && !isLoading) {
@@ -58,6 +67,7 @@ function App() {
         todos: initialTodos,
         sections: tasksConfig.sections,
         lastResetDate: getLastResetDate(),
+        hpHistory: [addHpHistoryEntry(1000, "Starting HP")],
       };
 
       updateAppState(initialState);
@@ -76,11 +86,16 @@ function App() {
       // Increment the reset date by one day (instead of creating new date)
       const newResetDate = incrementResetDate(appState.lastResetDate);
 
+      const newHp = appState.hp + hpChange;
       const newState = {
         ...appState,
-        hp: appState.hp + hpChange,
+        hp: newHp,
         todos: resetTodos,
         lastResetDate: newResetDate,
+        hpHistory: [
+          ...appState.hpHistory,
+          addHpHistoryEntry(newHp, "Daily reset"),
+        ],
       };
       updateAppState(newState);
     }
@@ -111,9 +126,14 @@ function App() {
 
     const adjustment = parseInt(hpAdjustment);
     if (!isNaN(adjustment)) {
+      const newHp = appState.hp + adjustment;
       updateAppState({
         ...appState,
-        hp: appState.hp + adjustment,
+        hp: newHp,
+        hpHistory: [
+          ...appState.hpHistory,
+          addHpHistoryEntry(newHp, "Manual adjustment"),
+        ],
       });
       setHpAdjustment("");
     }
@@ -129,11 +149,16 @@ function App() {
     const resetTodos = resetDailyTodos(appState.todos);
 
     // Update HP and reset date
+    const newHp = appState.hp + hpChange;
     const newState = {
       ...appState,
-      hp: appState.hp + hpChange,
+      hp: newHp,
       todos: resetTodos,
       lastResetDate: getLastResetDate(),
+      hpHistory: [
+        ...appState.hpHistory,
+        addHpHistoryEntry(newHp, "Manual daily reset"),
+      ],
     };
 
     updateAppState(newState);

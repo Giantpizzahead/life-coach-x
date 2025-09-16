@@ -122,6 +122,12 @@ export const loadAppState = (): AppState | null => {
       })),
     }));
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    parsed.hpHistory = parsed.hpHistory.map((entry: any) => ({
+      ...entry,
+      date: new Date(entry.date),
+    }));
+
     console.log("Loaded app state");
     return parsed;
   } catch (error) {
@@ -142,6 +148,10 @@ export const saveAppState = (state: AppState): void => {
           ...entry,
           date: new Date(entry.date).toISOString(),
         })),
+      })),
+      hpHistory: state.hpHistory.map((entry) => ({
+        ...entry,
+        date: new Date(entry.date).toISOString(),
       })),
     };
 

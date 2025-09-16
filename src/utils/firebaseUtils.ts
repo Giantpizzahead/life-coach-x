@@ -20,6 +20,10 @@ export const serializeAppState = (state: AppState) => {
         date: entry.date.toISOString(),
       })),
     })),
+    hpHistory: state.hpHistory.map((entry) => ({
+      ...entry,
+      date: entry.date.toISOString(),
+    })),
     updatedAt: serverTimestamp(),
   };
 };
@@ -38,6 +42,11 @@ export const deserializeAppState = (data: any): AppState => {
         ...entry,
         date: new Date(entry.date),
       })),
+    })),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    hpHistory: data.hpHistory.map((entry: any) => ({
+      ...entry,
+      date: new Date(entry.date),
     })),
   };
 };
