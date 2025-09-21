@@ -80,7 +80,10 @@ function App() {
   useEffect(() => {
     if (appState && shouldResetTasks(appState.lastResetDate)) {
       // Calculate HP change for the previous day's completions
-      const hpChange = calculateDailyHpChange(appState.todos);
+      const hpChange = calculateDailyHpChange(
+        appState.todos,
+        appState.lastResetDate
+      );
 
       // Reset all tasks to NONE
       const resetTodos = resetDailyTodos(appState.todos);
@@ -144,8 +147,11 @@ function App() {
   const handleEndOfDayReset = () => {
     if (!appState) return;
 
-    // Calculate HP change for today
-    const hpChange = calculateDailyHpChange(appState.todos);
+    // Calculate HP change for the period since last reset
+    const hpChange = calculateDailyHpChange(
+      appState.todos,
+      appState.lastResetDate
+    );
 
     // Reset all tasks to NONE
     const resetTodos = resetDailyTodos(appState.todos);

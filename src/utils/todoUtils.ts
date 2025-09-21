@@ -36,8 +36,13 @@ const getCurrentDay = (): Date => {
 
 export const isTaskRequiredToday = (todo: TodoItem): boolean => {
   const today = getCurrentDay();
-  const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
-  const dayOfMonth = today.getDate(); // 1-31
+  return isTaskRequiredOnDate(todo, today);
+};
+
+// Helper function to check if a task was required on a specific date
+export const isTaskRequiredOnDate = (todo: TodoItem, date: Date): boolean => {
+  const dayOfWeek = date.getDay(); // 0 = Sunday, 1 = Monday, etc.
+  const dayOfMonth = date.getDate(); // 1-31
 
   switch (todo.recurrence.type) {
     case "daily":
@@ -74,9 +79,13 @@ export const updateTodoCompletion = (
   );
 };
 
-export const calculateDailyHpChange = (todos: TodoItem[]): number => {
+export const calculateDailyHpChange = (
+  todos: TodoItem[],
+  date?: Date
+): number => {
+  const targetDate = date || getCurrentDay();
   return todos.reduce((total, todo) => {
-    if (!isTaskRequiredToday(todo)) return total;
+    if (!isTaskRequiredOnDate(todo, targetDate)) return total;
     // Treat unselected tasks as none for HP calculation
     const effectiveTier =
       todo.completionTier === CompletionTier.UNSELECTED
@@ -86,9 +95,13 @@ export const calculateDailyHpChange = (todos: TodoItem[]): number => {
   }, 0);
 };
 
-export const calculateDailyHpChangePreview = (todos: TodoItem[]): number => {
+export const calculateDailyHpChangePreview = (
+  todos: TodoItem[],
+  date?: Date
+): number => {
+  const targetDate = date || getCurrentDay();
   return todos.reduce((total, todo) => {
-    if (!isTaskRequiredToday(todo)) return total;
+    if (!isTaskRequiredOnDate(todo, targetDate)) return total;
     // Show actual HP values for preview (unselected shows 0)
     return total + calculateHpForTier(todo, todo.completionTier);
   }, 0);
